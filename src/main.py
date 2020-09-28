@@ -1,16 +1,19 @@
+#!/usr/bin/python
+
+
 import os
 from pathlib import Path
 import pandas as pd
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 
 
 out_dir = "./out"                                       ##  output path
-url = r"https://smart-lab.ru/q/shares_fundamental/"     ##  raw url
+url = r"https://smart-lab.ru/q/shares_fundamental/"     ##  URL
 
-max_PE = 16
-max_PS = 4
-max_PB = 1
-max_ND_EBITDA = 2.5
+max_PE = 12	##	Price / Earnings
+max_PS = 3	##	Price / Sales
+max_PB = 1	##	Price / Book Value
+max_ND_EBITDA = 2.0
 #max_EV_EBITDA = 10
 
 
@@ -25,10 +28,10 @@ pe = list(market_data["P/E"])
 print("Creating table...")
 low_P_ratio = market_data
 print("Forming data...")
-low_P_ratio = low_P_ratio[(low_P_ratio["P/E"] < max_PE) & (low_P_ratio["P/E"] > 0)] ##  Price/earnings ratio
+low_P_ratio = low_P_ratio[(low_P_ratio["P/E"] < max_PE) & (low_P_ratio["P/E"] > 0)]	##  Price/earnings ratio
 low_P_ratio = low_P_ratio[(low_P_ratio["P/S"] < max_PS) & (low_P_ratio["P/S"] > 0)] ##  Price/sales ratio
-low_P_ratio = low_P_ratio[(low_P_ratio["P/B"] < 4) & (low_P_ratio["P/B"] > 0)]      ##  Price/book value ratio
-low_P_ratio = low_P_ratio[(low_P_ratio["ДД ао, %"] is not None) & (low_P_ratio["ДД ао, %"] != "0.0%")]                              ##  With dividends
+low_P_ratio = low_P_ratio[(low_P_ratio["P/B"] < 1.5) & (low_P_ratio["P/B"] > 0)]    ##  Price/book value ratio
+low_P_ratio = low_P_ratio[(low_P_ratio["ДД ао, %"] is not None) & (low_P_ratio["ДД ао, %"] != "0.0%")]		##  With dividends
 low_P_ratio = low_P_ratio[low_P_ratio["долг/EBITDA"] < max_ND_EBITDA]               ##  With low debd load
 
 print("Sorting data...")
@@ -52,9 +55,15 @@ low_ND_EBITDA.info()
 #lowest_PS = 
 #lowest_PB = 
 """
+
+
+##	Save results
+##	Check output path
 if not os.path.exists(out_dir):
     Path(out_dir).mkdir(parents = True, exist_ok = True)
     print("Out directory was created")
+
+##	Write results
 with open("./out/out.csv", 'w') as f:
     f.write(lowest_P_ratio.to_csv())
     print("CSV file writen")
